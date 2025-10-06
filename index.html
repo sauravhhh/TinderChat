@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tinder Conversation Starter Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #6c757d;
+            --tinder-pink: #ff6b81;
+            --tinder-purple: #a55eea;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--white);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--medium-gray);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--tinder-pink);
+        }
+
+        .main-container {
+            flex: 1;
+            padding: 2rem 0;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-card {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--medium-gray);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .category-btn {
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--medium-gray);
+            background-color: var(--white);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-btn:hover {
+            background-color: var(--light-gray);
+            border-color: var(--tinder-purple);
+        }
+
+        .category-btn.active {
+            background-color: var(--tinder-purple);
+            color: white;
+            border-color: var(--tinder-purple);
+        }
+
+        .category-btn i {
+            font-size: 1.2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--tinder-pink), var(--tinder-purple));
+            border: none;
+            border-radius: 8px;
+            padding: 0.875rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .starter-item {
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .starter-item:hover {
+            background-color: var(--medium-gray);
+        }
+
+        .starter-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            padding-right: 40px;
+        }
+
+        .starter-actions {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+            transition: color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            color: var(--tinder-purple);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .toast {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--medium-gray);
+        }
+
+        .toast-body {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .footer {
+            background-color: var(--white);
+            border-top: 1px solid var(--medium-gray);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer i {
+            color: var(--tinder-pink);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .section-card {
+                padding: 1rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-fire"></i>
+                <span>Tinder Conversation Starter</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="container">
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-sliders-h"></i>
+                    Customize Your Starters
+                </h2>
+                
+                <div class="category-grid">
+                    <button class="category-btn" data-category="funny">
+                        <i class="fas fa-laugh"></i>
+                        <span>Funny</span>
+                    </button>
+                    <button class="category-btn" data-category="emotional">
+                        <i class="fas fa-heart"></i>
+                        <span>Emotional</span>
+                    </button>
+                    <button class="category-btn" data-category="question">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Questions</span>
+                    </button>
+                    <button class="category-btn" data-category="compliment">
+                        <i class="fas fa-heart"></i>
+                        <span>Compliments</span>
+                    </button>
+                    <button class="category-btn" data-category="adventure">
+                        <i class="fas fa-mountain"></i>
+                        <span>Adventure</span>
+                    </button>
+                    <button class="category-btn" data-category="flirting">
+                        <i class="fas fa-kiss-wink-heart"></i>
+                        <span>Flirting</span>
+                    </button>
+                </div>
+                
+                <button class="btn btn-primary" id="generateBtn">
+                    <i class="fas fa-magic me-2"></i>
+                    Generate Conversation Starters
+                </button>
+            </div>
+
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="section-title mb-0">
+                        <i class="fas fa-comments"></i>
+                        Conversation Starters
+                    </h2>
+                    <button class="btn btn-sm btn-outline-secondary" id="clearBtn">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                
+                <div id="startersContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-comment-dots"></i>
+                        <p>Select categories and generate conversation starters!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            Made with <i class="fas fa-heart"></i> by Sauravhhh
+        </div>
+    </footer>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            const startersContainer = document.getElementById('startersContainer');
+            const generateBtn = document.getElementById('generateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            
+            let selectedCategories = [];
+            let conversationStarters = {};
+            
+            // Fetch conversation starters from JSON file
+            fetch('starters.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    conversationStarters = data;
+                    // Enable the generate button after data is loaded
+                    generateBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading conversation starters:', error);
+                    showToast('Error loading conversation starters. Please try again later.');
+                });
+            
+            // Create starter element
+            function createStarterElement(text, index) {
+                const starterDiv = document.createElement('div');
+                starterDiv.className = 'starter-item';
+                
+                starterDiv.innerHTML = `
+                    <p class="starter-text">${text}</p>
+                    <div class="starter-actions">
+                        <button class="action-btn copy" data-text="${text}">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    </div>
+                `;
+                
+                return starterDiv;
+            }
+            
+            // Generate conversation starters
+            function generateStarters() {
+                if (selectedCategories.length === 0) {
+                    showToast('Please select at least one category');
+                    return;
+                }
+                
+                if (Object.keys(conversationStarters).length === 0) {
+                    showToast('Conversation starters are still loading. Please wait.');
+                    return;
+                }
+                
+                const starters = [];
+                
+                // Generate 10-15 starters from each selected category
+                selectedCategories.forEach(category => {
+                    if (conversationStarters[category]) {
+                        const categoryStarters = [...conversationStarters[category]];
+                        const shuffled = categoryStarters.sort(() => 0.5 - Math.random());
+                        const numToTake = Math.floor(Math.random() * 6) + 10; // 10-15 starters
+                        const selected = shuffled.slice(0, Math.min(numToTake, categoryStarters.length));
+                        
+                        selected.forEach(starter => {
+                            starters.push(starter);
+                        });
+                    }
+                });
+                
+                // Shuffle all starters
+                const shuffledStarters = starters.sort(() => 0.5 - Math.random());
+                
+                // Display starters
+                startersContainer.innerHTML = '';
+                shuffledStarters.forEach((starter, index) => {
+                    const starterElement = createStarterElement(starter, index);
+                    startersContainer.appendChild(starterElement);
+                });
+                
+                // Add event listeners to new elements
+                addEventListeners();
+            }
+            
+            // Add event listeners
+            function addEventListeners() {
+                // Copy buttons
+                document.querySelectorAll('.action-btn.copy').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const text = this.getAttribute('data-text');
+                        navigator.clipboard.writeText(text).then(() => {
+                            showToast('Copied to clipboard!');
+                        });
+                    });
+                });
+            }
+            
+            // Show toast notification
+            function showToast(message) {
+                const toastContainer = document.querySelector('.toast-container');
+                const toastId = 'toast-' + Date.now();
+                
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.id = toastId;
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+                
+                toast.innerHTML = `
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                const bsToast = new bootstrap.Toast(toast, {
+                    autohide: true,
+                    delay: 3000
+                });
+                
+                bsToast.show();
+                
+                toast.addEventListener('hidden.bs.toast', () => {
+                    toast.remove();
+                });
+            }
+            
+            // Category button toggle
+            categoryButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    if (this.classList.contains('active')) {
+                        this.classList.remove('active');
+                        selectedCategories = selectedCategories.filter(c => c !== category);
+                    } else {
+                        this.classList.add('active');
+                        selectedCategories.push(category);
+                    }
+                });
+            });
+            
+            // Generate button click
+            generateBtn.addEventListener('click', generateStarters);
+            
+            // Clear button click
+            clearBtn.addEventListener('click', function() {
+                startersContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comment-dots"></i>
+                        <p>Select categories and generate conversation starters!</p>
+                    </div>
+                `;
+            });
+            
+            // Initialize
+            addEventListeners();
+        });
+    </script>
+</body>
+</html>
